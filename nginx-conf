@@ -1,0 +1,12 @@
+server {
+        listen 80;
+        server_name 45.79.123.85;
+
+        location /static {
+                alias /home/soumya/Blog_App/flaskblog/static;
+        }
+
+        location / {
+                proxy_pass http://localhost:8000;
+        }
+}
