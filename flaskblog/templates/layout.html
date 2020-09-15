@@ -62,7 +62,19 @@
               <h3>Our Sidebar</h3>
               <p class='text-muted'>You can put any information here you'd like.
                 <ul class="list-group">
-                  <li class="list-group-item list-group-item-light">Latest Posts</li>
+                  <li class="list-group-item list-group-item-light">
+                    <div>
+                      <input class="form-control" type="text" id="searchPost" name="searchPost" placeholder="Search By title/author" aria-label="Search Bt title or author">
+                    <script type="text/javascript">
+                      function myFunction() {
+                      let text = document.getElementById("searchPost").value
+                      let link = "/post/"+text
+                      document.getElementById("searchLink").href = link;
+                      }
+                      </script>
+                      <a class="btn btn-info" href="#" id="searchLink" onclick="myFunction()"></a>
+                    </div>
+                  </li>
                   <li class="list-group-item list-group-item-light">Announcements</li>
                   <li class="list-group-item list-group-item-light">Calendars</li>
                   <li class="list-group-item list-group-item-light">etc</li>

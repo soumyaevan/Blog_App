@@ -24,6 +24,17 @@ def post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', title=post.title, post=post)
 
+@posts.route("/post/<string:search_text>")
+def search_post(search_text):
+    search = "%{}%".format(search_text)
+    page = request.args.get('page', 1, type=int)
+    posts= Post.query.filter(Post.title.like(search)).order_by(Post.date_posted.desc()).paginate(page=page,per_page=5)
+    if posts:
+        return render_template('search.html', title="Searched Posts", posts=posts, search_text=search_text)
+    else:
+        return redirect(url_for('main.home'))
+    
+
 @posts.route("/post/<int:post_id>/update",methods=['GET','POST'])
 @login_required
 def update_post(post_id):
