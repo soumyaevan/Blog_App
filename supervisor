@@ -1,0 +1,11 @@
+[program:flaskblog]
+directory=/home/soumya/Blog_App
+command=/home/soumya/Blog_App/venv/bin/gunicorn -w 3 run:app
+user=soumya
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+stderr_logfile=/var/log/flaskblog/flaskblog.err.log
+stdout_logfile=/var/log/flaskblog/flaskblog.out.log
+
