@@ -64,11 +64,11 @@
                 <ul class="list-group">
                   <li class="list-group-item list-group-item-light">
                     <div>
-                      <input class="form-control" type="text" id="searchPost" name="searchPost" placeholder="Search By title/author" aria-label="Search Bt title or author">
+                      <input class="form-control" type="text" id="searchPost" name="searchPost" placeholder="Search By matching title" aria-label="Search Bt title or author">
                     <script type="text/javascript">
                       function myFunction() {
                       let text = document.getElementById("searchPost").value
-                      let link = "/post/"+text
+                      let link = "/post/search/"+text
                       document.getElementById("searchLink").href = link;
                       }
                       </script>

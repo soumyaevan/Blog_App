@@ -24,7 +24,7 @@ def post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', title=post.title, post=post)
 
-@posts.route("/post/<string:search_text>")
+@posts.route("/post/search/<string:search_text>")
 def search_post(search_text):
     search = "%{}%".format(search_text)
     page = request.args.get('page', 1, type=int)

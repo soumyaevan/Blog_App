@@ -34,7 +34,7 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
         else:
             flash("Login unsuccessful. Please check email and password",'danger')
-    return render_template('login.html', title="Register", form=form)
+    return render_template('login.html', title="Login", form=form)
 
 @users.route('/logout', methods=['GET','POST'])
 def logout():
@@ -82,7 +82,7 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         send_reset_email(user)
         flash('An email has been sent with reset link', 'info')
-        return redirect(url_for('main.login'))
+        return redirect(url_for('users.login'))
     return render_template('reset_request.html', title='Reset Password', form=form)
 
 @users.route('/reset_password/<token>', methods=['GET','POST'])
