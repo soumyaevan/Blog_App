@@ -1,10 +1,11 @@
+from datetime import datetime
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from flaskblog import db, bcrypt
 from flaskblog.models import User, Post
 from flaskblog.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                    RequestResetForm, PassswordResetForm)
-from flaskblog.users.utils import save_picture, send_reset_email
+from flaskblog.users.utils import save_picture, send_reset_email, send_confirmation_email
 users = Blueprint('users', __name__)
 
 @users.route('/register', methods=['GET','POST'])
@@ -13,12 +14,17 @@ def register():
         return redirect(url_for('main.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        flash(f'Your account is successfully created! You can login now.','success')
-        return redirect(url_for('users.login'))
+        try:
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+            db.session.add(user)
+            db.session.commit()
+            flash(f'Your have successfully registered. Please confirm your email to login','success')
+            send_confirmation_email(user)
+            return redirect(url_for('users.login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Registration is unsuccessful due to some server error. Try Again','Danger')
     return render_template('register.html', title="Register", form=form)
 
 @users.route('/login', methods=['GET','POST'])
@@ -28,7 +34,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and user.email_confirmed and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('main.home'))
@@ -101,4 +107,23 @@ def reset_password(token):
         flash(f'Your password is successfully updated. You can login now','success')
         return redirect(url_for('users.login'))
     return render_template('reset_password.html', title='Reset Password', form=form)
+
+@users.route('/confirm_email/<token>', methods=['GET','POST'])
+def confirm_email(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    user = User.verify_reset_token(token)
+    if user is None:
+        flash('Your email confirmation link is expired', 'warning')
+        return redirect(url_for('users.register'))
+    # form = PassswordResetForm()
+    if user.email_confirmed:
+        flash('Account already confirmed. Please login.', 'info')
+    else:
+        user.email_confirmed = True
+        user.email_confirmed_on = datetime.utcnow()
+        # db.session.add(user)
+        db.session.commit()
+        flash('Thank you for confirming your email address!')
+    return redirect(url_for('users.login'))
 
